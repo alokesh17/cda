@@ -78,5 +78,19 @@ difference between sample and null proportions in absolute value.
 ```{r}
 prop.test(0,20)
 ```
+For very small n, do inference using the exact binomial sampling
+distribution of the data, instead of the normal approximation.
 
+R Functions for Simple Binomial Tests and CI
+```{r}
+binom.test(0,20)
+```
+5. contingency table from page 35 <https://huskyct.uconn.edu/ultra/courses/_150350_1/cl/outline>
+
+```{r}
+phs <- matrix(c(189, 10845, 104, 10933), ncol = 2, byrow = TRUE)
+dimnames(phs) <- 
+  list(Group = c("Placebo","Aspirin"), MI = c("Y", "N"))
+
+```
 
