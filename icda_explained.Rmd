@@ -1,0 +1,82 @@
+---
+title: "icda_explained"
+author: "Alokesh Manna"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+install.packages("devtools")
+library(devtools)
+install_github("presnell/icda")
+```
+Cola preference
+```{r}
+dbinom(0, 3, .6)
+dbinom(1, 3, .6)
+dbinom(0:3, 3, .6)
+cbind(0:3, dbinom(0:3, 3, .6))
+
+
+###################################################
+### code chunk number 9: icda-notes.Rnw:490-492
+###################################################
+```
+1. How to plot a PMF? type = "h"
+```{r}
+plot(0:3, dbinom(0:3, 3, .6), type = "h",
+     xlab = "y", ylab = "P(y)")
+
+
+```
+2. Plot a overall distribution
+```{r}
+opar <- par(mfrow=c(1,2))
+plot(0:8, dbinom(0:8,8,.2), type="h", xlab="y", ylab="p(y)",
+main=expression(paste("Binomial(n=8, ",pi,"=.2)")))
+plot(0:15, dbinom(0:15,25,.2), type="h", xlab="y", ylab="p(y)",
+main=expression(paste("Binomial(n=25, ",pi,"=.2)")))
+par(opar)
+
+```
+3. A curve? curve has an argument as x. Also we want to show different segments.
+```{r}
+curve(dbinom(1,3,x), xlim = c(0,1),
+xlab=expression(paste("Binomial parameter: ",pi)),
+ylab=expression(paste("Likelihood:  ", l(pi))))
+
+curve(dbinom(1,3,x), xlim = c(0,1), xaxt="n",
+      xlab=expression(paste("Binomial parameter: ",pi)),
+      ylab=expression(paste("Likelihood: ", l(pi))))
+axis(1, at=c(0,1/3,1), labels=c("0","1/3","1"))
+segments(1/3, 0, 1/3, dbinom(1, 3, 1/3), lty=2)
+
+curve(dbinom(3,3,x), xlim = c(0,1),
+      xlab=expression(paste("Binomial parameter: ",pi)),
+      ylab=expression(paste("Likelihood: ", l(pi))))
+segments(1, 0, 1, dbinom(3, 3, 1), lty=2)
+
+
+```
+4.
+Null: x/n = .5 if there is only one group.
+
+prop.test(x, n, p = NULL,
+          alternative = c("two.sided", "less", "greater"),
+          conf.level = 0.95, correct = TRUE)
+          
+CI is constructed based on normality assumption. It keeps [-1,1] or
+[0,1] depending on whether the test is for 1 or 2 group. 
+
+Continuity correction is used only if it does not exceed the 
+difference between sample and null proportions in absolute value. 
+
+```{r}
+prop.test(0,20)
+```
+
+
