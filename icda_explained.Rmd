@@ -94,3 +94,132 @@ dimnames(phs) <-
 
 ```
 
+
+```{r}
+phs
+```
+If you get a positive result, more relevant to you is Pr(X = 1|Y = 1). If
+disease is relatively rare, this may be low even if sensitivity and
+specificity are high.
+
+Statistical independence test:
+1. direct method:
+$SE(p1 − p2) = \sqrt{p1(1 − p1)/n1+ p2(1 − p2)/n2}$
+use the normality and CI approach.
+If $p1 − p2+/-SE(p1 − p2)$ includes 0, no significant difference.
+
+2.$\text{odd ratio} =(π1/(1 − π1))/(π2/(1 − π2))=π1(1 − π2)/π2(1 − π1)$
+Test for $\text{odd ratio}=1$ or not!
+$SE(log odd ratio) = \sqrt{1/n11+1/n12+1/n21+1/n22}$
+So now use the CI $log odd ratio+/-1.96 SE$
+
+3. Chi square independence test. df:(I-1)(J-1). one sided test.
+
+4. Liklihood ration test. $-2log(\text{liklihood under} H_{0}/\text{liklihood under} H_{1})$. df:(I-1)(J-1). one sided test.
+
+```{r}
+pag.tab <- matrix(c(762, 484, 327, 239, 468, 477), nrow=2)
+dimnames(pag.tab) <- 
+  list(Gender=c("Female","Male"),
+       Party=c("Democrat","Independent","Republican"))
+pag.tab <- as.table(pag.tab)
+pag.tab
+
+
+###################################################
+### code chunk number 36: icda-notes.Rnw:1965-1967
+###################################################
+pag.df <- as.data.frame(pag.tab)
+pag.df
+
+
+###################################################
+### code chunk number 37: icda-notes.Rnw:1977-1982
+###################################################
+pag.df <- 
+  expand.grid(Gender=c("Female","Male"),
+             Party=c("Democrat","Independent","Republican"))
+pag.df
+pag.df$Freq <- c(762, 484, 327, 239, 468, 477)
+
+
+###################################################
+### code chunk number 38: icda-notes.Rnw:1990-1992
+###################################################
+pag.df
+xtabs(Freq ~ Gender + Party, data=pag.df)
+
+
+###################################################
+### code chunk number 39: icda-notes.Rnw:2008-2009 (eval = FALSE)
+###################################################
+## pag.df <- read.table("Data/pag.txt", header=TRUE)
+
+
+```
+```{r}
+pag.tab
+margin.table(pag.tab, 1)
+margin.table(pag.tab, 2)
+
+
+###################################################
+### code chunk number 42: icda-notes.Rnw:2042-2043
+###################################################
+addmargins(pag.tab)
+
+
+###################################################
+### code chunk number 43: icda-notes.Rnw:2054-2056
+###################################################
+prop.table(pag.tab)
+round(prop.table(pag.tab), 3)
+
+
+###################################################
+### code chunk number 44: icda-notes.Rnw:2066-2067
+###################################################
+prop.table(pag.tab, 1)
+
+
+###################################################
+### code chunk number 45: icda-notes.Rnw:2071-2072
+###################################################
+prop.table(pag.tab, 2)
+
+```
+
+chisquare test
+```{r}
+chisq.test(pag.tab)
+
+
+###################################################
+### code chunk number 47: icda-notes.Rnw:2091-2096
+###################################################
+pag.chisq <- chisq.test(pag.tab)
+names(pag.chisq)
+pag.chisq$statistic
+pag.chisq$parameter
+pag.chisq$p.value
+```
+```{r}
+###################################################
+pag.chisq$observed
+pag.chisq$expected
+with(pag.chisq, sum((observed - expected)^2/expected))
+
+```
+
+```{r}
+###################################################
+pag.chisq$residuals
+
+
+###################################################
+### code chunk number 50: icda-notes.Rnw:2125-2126
+###################################################
+pag.chisq$stdres
+
+```
+
