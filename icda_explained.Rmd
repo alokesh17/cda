@@ -472,6 +472,11 @@ summary(malform.logit)
 
 
 ```
+Takeaway:
+
+1. p-value = 0.012 for H0 : beta = 0 vs Ha : beta not equal to 0.
+But p-value = 0.3 if delete single “present” obs. in >=6 drink row!
+
 
 ```{r}
 malcoef.logit <- summary(malform.logit)$coefficients
@@ -494,6 +499,101 @@ plot(0:10, dpois(0:10,2.25), type="h", xlab="y", ylab="p(y)",
 plot(0:18, dpois(0:18,7.3), type="h", xlab="y", ylab="p(y)",
      main=expression(paste("Poisson(", mu, "=7.3)")))
 par(opar)
+
+```
+
+2. Another example
+
+Defects in Silicon Wafers
+Y = number defects on silicon wafer
+x = dummy var. for treatment (0 = A, 1 = B)
+
+```{r}
+A <- c(8,7,6,6,3,4,7,2,3,4)
+B <- c(9,9,8,14,8,13,11,5,7,6)
+trt <- factor(rep(c("A","B"), each=10))
+wafers <- data.frame(trt=trt, defects=c(A,B))
+wafers.lin <- glm(defects ~ trt, 
+                 family=poisson(link="identity"),
+                 data=wafers)
+wafers.loglin <- glm(defects ~ trt, 
+                     family=poisson(link="log"),
+                     data=wafers)
+
+
+###################################################
+### code chunk number 81: wafers.2 (eval = FALSE)
+###################################################
+## summary(wafers.lin)
+
+
+###################################################
+### code chunk number 82: wafers.3 (eval = FALSE)
+###################################################
+## summary(wafers.loglin)
+
+
+###################################################
+### code chunk number 83: icda-notes.Rnw:3180-3181
+###################################################
+summary(wafers.lin)
+
+
+###################################################
+### code chunk number 84: icda-notes.Rnw:3188-3189
+###################################################
+summary(wafers.loglin)
+
+```
+
+
+
+```{r}
+###################################################
+wafercoef.lin <- summary(wafers.lin)$coefficients
+wafercoef.loglin <- summary(wafers.loglin)$coefficients
+
+wafcoef <- summary(wafers.loglin)$coefficients
+wafL1 <- 
+  with(wafers.loglin,
+       sum(y*log(fitted.values) - fitted.values - lfactorial(y)))
+wafL0 <-
+  with(update(wafers.loglin, . ~ 1),
+       sum(y*log(fitted.values) - fitted.values - lfactorial(y)))
+wafdev <- wafers.loglin$deviance
+wafdf <- wafers.loglin$df.residual
+wafdev0 <- wafers.loglin$null.deviance
+wafdf0 <- wafers.loglin$df.null
+
+
+#############################################
+#######################################
+drop1(wafers.loglin, test="Chisq") 
+
+
+###################################################
+### code chunk number 88: icda-notes.Rnw:3379-3380
+###################################################
+anova(wafers.loglin, test="Chisq")
+
+
+```
+```{r}
+wafCI.LR <- confint(wafers.loglin)
+wafCI.Wald <- confint.default(wafers.loglin)
+
+wafCI.LR <- confint(wafers.loglin)
+wafCI.Wald <- confint.default(wafers.loglin)
+wafCI.LR
+exp(wafCI.LR)
+wafCI.Wald
+```
+
+```{r}
+###################################################
+plot(0:53, dpois(0:53,25), type="h", xlab="y", ylab="p(y)",
+     main=expression(paste("Poisson(", mu, "=25)")))
+
 
 ```
 
