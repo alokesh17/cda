@@ -102,13 +102,20 @@ The file titanic.txt is a documentation file containing a brief description of t
 
 Data file: `titanic
 ```{r}
-hw1q2 <-  read.csv("M:/teaching/BIST5615f24/HW/titanicdat.csv") 
+hw1q2 <-  read.csv("titanicdat.csv") 
 str(hw1q2)
 table(hw1q2)
 ```
 
 (a) (5 points)  For adults who sailed on the Titanic, use the raw data to reproduce the odds of
 survival for females was 11.4 times that of males as well as the odds of survival for females equaled 2.9 discussed in Lecture Note 3.
+
+
+
+```{r}
+
+```
+
 
 (b) (5 points) For adults who sailed on the Titanic, (i) compute the 95% exact confidence interval of the odds ratio of survival
 for females versus males and (ii) compute a 95% asymptotic confidence interval and the 95% exact confidence interval of $\gamma$
