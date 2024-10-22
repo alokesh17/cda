@@ -71,6 +71,18 @@ for all \( (x, y) \in M \times N \). Summing over \( x \), we find that:
 
 is completely determined by the conditional distributions. Hence, so is \( \mathbb{P}[Y=y] \) determined. Finally, \( \mathbb{P}[X=x, Y=y] = \mathbb{P}[X=x \mid Y=y] / \mathbb{P}[Y=y] \) is also determined by the conditional distributions.
 
+with this logic, for b)
+\[
+\begin{array}{|c|c|c|c|}
+\hline
+P(X = x, Y = y) & Y = 1 & Y = 2 & Y = 3 \\
+\hline
+X = 1 & 0 & 0 & \frac{3}{16} \\
+X = 2 & 0 & \frac{3}{16} & \frac{3}{16} \\
+X = 3 & 0 & \frac{3}{16} & \frac{4}{16} \\
+\hline
+\end{array}
+\]
 
 
 
