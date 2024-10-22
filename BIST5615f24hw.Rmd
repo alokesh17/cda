@@ -113,8 +113,51 @@ survival for females was 11.4 times that of males as well as the odds of surviva
 
 
 ```{r}
-
+library(dplyr)
+adult_female_surv <- hw1q2 %>% filter(age==1,sex==0) %>% select(survival)%>% table()
 ```
+```{r}
+adult_female_surv
+```
+
+```{r}
+(adult_female_dead <- hw1q2 %>% filter(age==1,sex==0) %>% select(survival)
+%>% table() %>% .[1])
+```
+
+
+
+```{r}
+(adult_male_surv <- hw1q2 %>% filter(age==1,sex==1) %>% select(survival)
+%>% table() %>% .[2])
+```
+
+
+```{r}
+(adult_male_dead <- hw1q2 %>% filter(age==1,sex==1) %>% select(survival)
+%>% table() %>% .[1])
+```
+
+The odds of adult female survival is given by
+
+\[
+\frac{\# \text{adult females survived}}{\# \text{adult females died}} = \frac{\text{adult\_female\_surv}}{\text{adult\_female\_dead}} = \frac{316}{109} = \text{round}\left(\frac{316}{109},1\right) = 2.9
+\]
+
+
+The odds of adult male survival is given by
+
+\[
+\frac{\# \text{adult males survived}}{\# \text{adult males died}} = \frac{\text{adult\_male\_surv}}{\text{adult\_male\_dead}} = \frac{338}{1329} = \text{round}\left(\frac{338}{1329},1\right) = 0.3
+\]
+
+Therefore, the odds ratio of survival for females vs. males is given by
+
+\[
+\frac{\# \text{adult females survived}}{\# \text{adult females died}} , \frac{\# \text{adult males survived}}{\# \text{adult males died}} = \frac{\text{adult\_female\_surv}}{\text{adult\_female\_dead}} , \frac{\text{adult\_male\_surv}}{\text{adult\_male\_dead}} = \frac{316}{109}, \frac{338}{1329} = \text{round}\left(\frac{316/109}{338/1329},1\right) = 11.4
+\]
+
+
 
 
 (b) (5 points) For adults who sailed on the Titanic, (i) compute the 95% exact confidence interval of the odds ratio of survival
