@@ -1,0 +1,102 @@
+---
+title: "BIST5615 Homework 1"
+subtitle: "Due date: Sunday November 3, 2024"
+output: pdf_document
+header-includes:
+  - \usepackage{titling}
+  - \setlength{\droptitle}{-5em} 
+fontsize: 12pt
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+\vspace{-1cm}
+
+## General Instructions
+
+* Use this R Markdown template for homework submission.
+* Answer the questions by inserting R code and necessary comments if applicable. Your output must contain the R code (do not use the `echo=FALSE` option) if applicable.
+* Save the compiled PDF file under the file name `LastName-FirstName-HW1.pdf` 
+and submit it through HuskyCT by the deadline. 
+
+### Max Points: 35 points
+
+### 1. For a $3\times 3$ table, please answer the following questions.
+
+
+(a) (5 points) Assume that
+\begin{align*}
+P(X=1|Y=1)=0.5, & \;\; P(X=2|Y=1)=0.5, \;\; P(X=3|Y=1)=0, \\
+P(X=1|Y=2)=0, & \;\; P(X=2|Y=2)=0.5, \;\; P(X=3|Y=2)=0.5, \\
+P(X=1|Y=3)=0.5, & \;\; P(X=2|Y=2)=0, \;\; P(X=3|Y=3)=0.5; 
+\end{align*}
+and 
+\begin{align*}
+P(Y=1|X=1)=0.5, & \;\; P(Y=2|X=1)=0.5, \;\; P(Y=3|X=1)=0, \\
+P(Y=1|X=2)=0, & \;\; P(Y=2|X=2)=0.5, \;\; P(Y=3|X=2)=0.5, \\
+P(Y=1|X=3)=0.5, & \;\; P(Y=2|X=3)=0, \;\; P(Y=3|X=3)=0.5. 
+\end{align*}
+Can you uniquely determine the joint distribution of $X$ and $Y$?
+Please provide the reason if not and find it if so.
+
+(b) (5 points) Assume that
+\begin{align*}
+P(X=1|Y=1)=0.5, & \;\; P(X=2|Y=1)=0.5, \;\; P(X=3|Y=1)=0, \\
+P(X=1|Y=2)=0, & \;\; P(X=2|Y=2)=0.5, \;\; P(X=3|Y=2)=0.5, \\
+P(X=1|Y=3)=0.3, & \;\; P(X=2|Y=3)=0.3, \;\; P(X=3|Y=3)=0.4; 
+\end{align*}
+and 
+\begin{align*}
+P(Y=1|X=1)=0.5, & \;\; P(Y=2|X=1)=0.5, \;\; P(Y=3|X=1)=0, \\
+P(Y=1|X=2)=0, & \;\; P(Y=2|X=2)=0.5, \;\; P(Y=3|X=2)=0.5, \\
+P(Y=1|X=3)=0.5, & \;\; P(Y=2|X=3)=0, \;\; P(Y=3|X=3)=0.5. 
+\end{align*}
+Can you uniquely determine the joint distribution of $X$ and $Y$?
+Please provide the reason if not and find it if so.
+
+Ans.
+Let's say \( X \) and \( Y \) take values in finite sets \( M \) and \( N \), and that their joint mass function \( \mathbb{P}[X=x, Y=y] \) is \( > 0 \) for all \( (x, y) \in M \times N \). Then:
+
+\[
+\mathbb{P}[X=x \mid Y=y] / \mathbb{P}[Y=y \mid X=x] = \mathbb{P}[X=x] / \mathbb{P}[Y=y],
+\]
+
+for all \( (x, y) \in M \times N \). Summing over \( x \), we find that:
+
+\[
+1 \cdot \mathbb{P}[Y=y] = \sum_{x \in M} \mathbb{P}[X=x \mid Y=y]/ \mathbb{P}[Y=y \mid X=x]
+\]
+
+is completely determined by the conditional distributions. Hence, so is \( \mathbb{P}[Y=y] \) determined. Finally, \( \mathbb{P}[X=x, Y=y] = \mathbb{P}[X=x \mid Y=y] / \mathbb{P}[Y=y] \) is also determined by the conditional distributions.
+
+
+
+
+### 2. The sinking of the Titanic is a famous event, and new books are still being published about it.  Many well-known facts--from the proportions of first-class passengers to the ``women and children first" policy, and the fact that that policy was not entirely successful in saving the women and children in the third class--are reflected in the survival
+rates for various classes of passenger.  These data were originally
+collected by the British Board of Trade in their investigation of the
+sinking.  The file titanicdat.csv contains the raw data (2201 observations, 4 variables). The file titanicdat.sas contains both the data and SAS codes. 
+The file titanic.txt is a documentation file containing a brief description of the dataset. These files are posted on the Husky class website.
+
+Data file: `titanic
+```{r}
+hw1q2 <-  read.csv("M:/teaching/BIST5615f24/HW/titanicdat.csv") 
+str(hw1q2)
+table(hw1q2)
+```
+
+(a) (5 points)  For adults who sailed on the Titanic, use the raw data to reproduce the odds of
+survival for females was 11.4 times that of males as well as the odds of survival for females equaled 2.9 discussed in Lecture Note 3.
+
+(b) (5 points) For adults who sailed on the Titanic, (i) compute the 95% exact confidence interval of the odds ratio of survival
+for females versus males and (ii) compute a 95% asymptotic confidence interval and the 95% exact confidence interval of $\gamma$
+for gender and survival status.
+
+(c) (5 points) Using the entire raw data, determine whether the death rate for the third class passengers was much higher than for the others including the crew members.
+
+(d) (5 points) Using the entire raw data, determine whether the death rate for females was much less than for males.
+
+(e) (5 points) Using the entire raw data, determine whether the ``women and children first" policy was successful in
+    saving the women and children.
