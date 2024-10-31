@@ -1,7 +1,7 @@
 
 ##post pandemic data are important 2021-2023
-install.packages("haven")
-install.packages("writexl")
+# install.packages("haven")
+# install.packages("writexl")
 library(haven)
 library(writexl)
 
