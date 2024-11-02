@@ -9,7 +9,7 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-All the data is in XPT format. So need to have in a data frame.
+All the data is in XPT format. So need to have in a data frame. The explanation is in the doc file just after the data file
 
 ```{r}
 # install.packages("haven")
@@ -23,13 +23,37 @@ First we have the demography data downloaded.
 # Load the XPT file
 #<https://wwwn.cdc.gov/nchs/nhanes/search/datapage.aspx?Component=Demographics&Cycle=2021-2023>
 data <- read_xpt("~/downloads/DEMO_L.XPT")
-df=as.data.frame(data)
+df_demography=as.data.frame(data)
 ```
 
 
 ```{r}
-head(df)
+head(df_demography)
 ```
+
+```{r}
+colnames(df_demography)
+```
+
+
+```{r}
+
+```
+
+
+
+RIDAGEYR - Age in years at screening will be taken.
+
+DMDEDUC2 - Education level - Adults 20+. Whether has a college education or not!
+
+If it is 1,2,3 then no college education. If 4 and 5, then has college education.
+
+RIDRETH1 - Race/Hispanic origin from 1 to 5, see from codebook
+Value 4 is concerned. Non hispanic black.
+
+DMDYRUSR - Length of time in US. Immigration effects on blood pressure a lot. 
+
+
 
 ##definition in Demo_L_Doc
 
@@ -78,12 +102,44 @@ data_bloodpressure<-as.data.frame(data_bloodpressure)
 colnames(data_bloodpressure)
 ```
 
+
+BPQ020: {Have you/Has SP} ever been told by a doctor or other health professional that {you/s/he} had hypertension, also called high blood pressure?
+
+BPQ030	{Were you/Was SP} told on 2 or more different visits that {you/s/he} had hypertension, also called high blood pressure?
+
+BPQ080	{Have you/Has SP} ever been told by a doctor or other health professional that {your/his/her} blood cholesterol level was high?
+
+BPQ150	{Are you/Is SP} now taking any medication prescribed by a doctor for {your/his/her/SP's} high blood pressure?
+
+BPQ101D	{Are you/Is SP} now taking any medication prescribed by a doctor lower {your/his/her/SP's} blood cholesterol?
+
 ```{r}
 head(data_bloodpressure)
 ```
 
+```{r}
+summary(df_demography)
+```
+Q1: (more on blood pressure! fix one)
+Does people have
+association of race (black and white) and immigration status(only within black) 
+with the development of chronic disease in USA? 
+
+cholestorol (BPQ080), 
+blood pressure(BPQ020),
+diabatics (a complete other dataset, itself diabatics, diq010)
+
+
+Just within black, can we compare between male/female?
+categorize gender male, female # RIAGENDR - Gender
+
+
+
+
+
 ##1.categrize Age yong adults(18-39), middle age (40-59), older adults (>60)
-##2. categorize gender male, female
+(Not now!)
+##2. categorize gender male, female # RIAGENDR - Gender
 ##3. having high blood pressure greater than 2 times in doctor visit. yes no
 ###in black. origin category, what is the prevalence of 
 #high bloodpressure in young adults vs older adults
@@ -97,11 +153,33 @@ head(data_bloodpressure)
 
 ```
 
+Q2. Blood pressure 0/1 (BPQ020). 
+DBQ930 - Main meal planner/preparer: {Are you/Is SP} the person who does 
+most of the planning or preparing of meals in {your/SP's} family?0/1
+If you do not prepare meal by yourself, you can have hypertension as somebody else who is preparing food for you, might not know about your health condition. You can also eat junk food!
+
+
 
 ##problem 2:
 #DBQ930 - Main meal planner/preparer
 ##if black people do prepare food at home or outside while having hypertention
 ##link age, gender, meal, education level
+
+
+Q3: Maybe this variables are a bit complicated, we try other data
+Take 2 variables:
+PAD790Q - Frequency of moderate LTPA,
+PAD810Q - Frequency of vigorous LTPA
+
+If it is greater than 150 min per week of moderate PA or 75 min per week of vigorous PA
+
+If black adult does 150 minuites or more Physical Activity (PA), then prevalence
+of hypertension. 
+
+
+https://wwwn.cdc.gov/Nchs/Nhanes/2021-2022/PAQ_L.htm
+
+
 
 ##problem 3:
 #https://wwwn.cdc.gov/Nchs/Nhanes/2021-2022/PAQ_L.htm for physical activity
