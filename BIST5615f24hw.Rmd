@@ -159,7 +159,7 @@ Therefore, the odds ratio of survival for females vs. males is given by
 = 11.4
 \]
 
-
+The last answer is 11.4.
 
 
 
