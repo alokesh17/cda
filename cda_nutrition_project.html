@@ -11,7 +11,7 @@
 
 <meta name="author" content="Alokesh Manna" />
 
-<meta name="date" content="2024-10-30" />
+<meta name="date" content="2024-11-02" />
 
 <title>cda_nutrition_project</title>
 
@@ -352,12 +352,13 @@ display: none;
 
 <h1 class="title toc-ignore">cda_nutrition_project</h1>
 <h4 class="author">Alokesh Manna</h4>
-<h4 class="date">2024-10-30</h4>
+<h4 class="date">2024-11-02</h4>
 
 </div>
 
 
-<p>All the data is in XPT format. So need to have in a data frame.</p>
+<p>All the data is in XPT format. So need to have in a data frame. The
+explanation is in the doc file just after the data file</p>
 <pre class="r"><code># install.packages(&quot;haven&quot;)
 # install.packages(&quot;writexl&quot;)
 library(haven)
@@ -367,8 +368,8 @@ library(writexl)</code></pre>
 <pre class="r"><code># Load the XPT file
 #&lt;https://wwwn.cdc.gov/nchs/nhanes/search/datapage.aspx?Component=Demographics&amp;Cycle=2021-2023&gt;
 data &lt;- read_xpt(&quot;~/downloads/DEMO_L.XPT&quot;)
-df=as.data.frame(data)</code></pre>
-<pre class="r"><code>head(df)</code></pre>
+df_demography=as.data.frame(data)</code></pre>
+<pre class="r"><code>head(df_demography)</code></pre>
 <pre><code>##     SEQN SDDSRVYR RIDSTATR RIAGENDR RIDAGEYR RIDAGEMN RIDRETH1 RIDRETH3
 ## 1 130378       12        2        1       43       NA        5        6
 ## 2 130379       12        2        1       66       NA        3        3
@@ -397,6 +398,21 @@ df=as.data.frame(data)</code></pre>
 ## 4      182       2     1.53
 ## 5      182       2     3.60
 ## 6      176       2       NA</code></pre>
+<pre class="r"><code>colnames(df_demography)</code></pre>
+<pre><code>##  [1] &quot;SEQN&quot;     &quot;SDDSRVYR&quot; &quot;RIDSTATR&quot; &quot;RIAGENDR&quot; &quot;RIDAGEYR&quot; &quot;RIDAGEMN&quot;
+##  [7] &quot;RIDRETH1&quot; &quot;RIDRETH3&quot; &quot;RIDEXMON&quot; &quot;RIDEXAGM&quot; &quot;DMQMILIZ&quot; &quot;DMDBORN4&quot;
+## [13] &quot;DMDYRUSR&quot; &quot;DMDEDUC2&quot; &quot;DMDMARTZ&quot; &quot;RIDEXPRG&quot; &quot;DMDHHSIZ&quot; &quot;DMDHRGND&quot;
+## [19] &quot;DMDHRAGZ&quot; &quot;DMDHREDZ&quot; &quot;DMDHRMAZ&quot; &quot;DMDHSEDZ&quot; &quot;WTINT2YR&quot; &quot;WTMEC2YR&quot;
+## [25] &quot;SDMVSTRA&quot; &quot;SDMVPSU&quot;  &quot;INDFMPIR&quot;</code></pre>
+<p>RIDAGEYR - Age in years at screening will be taken.</p>
+<p>DMDEDUC2 - Education level - Adults 20+. Whether has a college
+education or not!</p>
+<p>If it is 1,2,3 then no college education. If 4 and 5, then has
+college education.</p>
+<p>RIDRETH1 - Race/Hispanic origin from 1 to 5, see from codebook Value
+4 is concerned. Non hispanic black.</p>
+<p>DMDYRUSR - Length of time in US. Immigration effects on blood
+pressure a lot.</p>
 <p>##definition in Demo_L_Doc</p>
 <div id="seqn---respondent-sequence-number" class="section level1">
 <h1>SEQN - Respondent sequence number</h1>
@@ -507,6 +523,17 @@ data_bloodpressure &lt;- read_xpt(&quot;~/downloads/BPQ_L.XPT&quot;)
 data_bloodpressure&lt;-as.data.frame(data_bloodpressure)
 colnames(data_bloodpressure)</code></pre>
 <pre><code>## [1] &quot;SEQN&quot;    &quot;BPQ020&quot;  &quot;BPQ030&quot;  &quot;BPQ150&quot;  &quot;BPQ080&quot;  &quot;BPQ101D&quot;</code></pre>
+<p>BPQ020: {Have you/Has SP} ever been told by a doctor or other health
+professional that {you/s/he} had hypertension, also called high blood
+pressure?</p>
+<p>BPQ030 {Were you/Was SP} told on 2 or more different visits that
+{you/s/he} had hypertension, also called high blood pressure?</p>
+<p>BPQ080 {Have you/Has SP} ever been told by a doctor or other health
+professional that {your/his/her} blood cholesterol level was high?</p>
+<p>BPQ150 {Are you/Is SP} now taking any medication prescribed by a
+doctor for {your/his/her/SP’s} high blood pressure?</p>
+<p>BPQ101D {Are you/Is SP} now taking any medication prescribed by a
+doctor lower {your/his/her/SP’s} blood cholesterol?</p>
 <pre class="r"><code>head(data_bloodpressure)</code></pre>
 <pre><code>##     SEQN BPQ020 BPQ030 BPQ150 BPQ080 BPQ101D
 ## 1 130378      1      1      1      2       2
@@ -515,17 +542,95 @@ colnames(data_bloodpressure)</code></pre>
 ## 4 130384      2     NA     NA      2       2
 ## 5 130385      2     NA     NA      2       2
 ## 6 130386      2     NA     NA      2       2</code></pre>
+<pre class="r"><code>summary(df_demography)</code></pre>
+<pre><code>##       SEQN           SDDSRVYR     RIDSTATR        RIAGENDR        RIDAGEYR    
+##  Min.   :130378   Min.   :12   Min.   :1.000   Min.   :1.000   Min.   : 0.00  
+##  1st Qu.:133361   1st Qu.:12   1st Qu.:1.000   1st Qu.:1.000   1st Qu.:13.00  
+##  Median :136344   Median :12   Median :2.000   Median :2.000   Median :37.00  
+##  Mean   :136344   Mean   :12   Mean   :1.742   Mean   :1.533   Mean   :38.32  
+##  3rd Qu.:139327   3rd Qu.:12   3rd Qu.:2.000   3rd Qu.:2.000   3rd Qu.:62.00  
+##  Max.   :142310   Max.   :12   Max.   :2.000   Max.   :2.000   Max.   :80.00  
+##                                                                               
+##     RIDAGEMN        RIDRETH1        RIDRETH3        RIDEXMON       RIDEXAGM    
+##  Min.   : 0.00   Min.   :1.000   Min.   :1.000   Min.   :1.00   Min.   :  0.0  
+##  1st Qu.: 6.00   1st Qu.:3.000   1st Qu.:3.000   1st Qu.:1.00   1st Qu.: 66.0  
+##  Median :11.00   Median :3.000   Median :3.000   Median :2.00   Median :122.0  
+##  Mean   :11.63   Mean   :3.105   Mean   :3.321   Mean   :1.52   Mean   :121.9  
+##  3rd Qu.:17.00   3rd Qu.:4.000   3rd Qu.:4.000   3rd Qu.:2.00   3rd Qu.:179.5  
+##  Max.   :24.00   Max.   :5.000   Max.   :7.000   Max.   :2.00   Max.   :239.0  
+##  NA&#39;s   :11556                                   NA&#39;s   :3073   NA&#39;s   :9146   
+##     DMQMILIZ        DMDBORN4        DMDYRUSR         DMDEDUC2    
+##  Min.   :1.000   Min.   :1.000   Min.   : 1.000   Min.   :1.000  
+##  1st Qu.:2.000   1st Qu.:1.000   1st Qu.: 3.000   1st Qu.:3.000  
+##  Median :2.000   Median :1.000   Median : 6.000   Median :4.000  
+##  Mean   :1.917   Mean   :1.157   Mean   : 7.335   Mean   :3.805  
+##  3rd Qu.:2.000   3rd Qu.:1.000   3rd Qu.: 6.000   3rd Qu.:5.000  
+##  Max.   :7.000   Max.   :2.000   Max.   :99.000   Max.   :9.000  
+##  NA&#39;s   :3632    NA&#39;s   :19      NA&#39;s   :10058    NA&#39;s   :4139   
+##     DMDMARTZ         RIDEXPRG        DMDHHSIZ        DMDHRGND    
+##  Min.   : 1.000   Min.   :1.000   Min.   :1.000   Min.   :1.000  
+##  1st Qu.: 1.000   1st Qu.:2.000   1st Qu.:2.000   1st Qu.:1.000  
+##  Median : 1.000   Median :2.000   Median :3.000   Median :2.000  
+##  Mean   : 1.778   Mean   :2.237   Mean   :3.243   Mean   :1.564  
+##  3rd Qu.: 2.000   3rd Qu.:3.000   3rd Qu.:4.000   3rd Qu.:2.000  
+##  Max.   :99.000   Max.   :3.000   Max.   :7.000   Max.   :2.000  
+##  NA&#39;s   :4141     NA&#39;s   :10430                   NA&#39;s   :7818   
+##     DMDHRAGZ       DMDHREDZ        DMDHRMAZ        DMDHSEDZ    
+##  Min.   :1.00   Min.   :1.000   Min.   :1.000   Min.   :1.000  
+##  1st Qu.:2.00   1st Qu.:2.000   1st Qu.:1.000   1st Qu.:2.000  
+##  Median :2.00   Median :2.000   Median :1.000   Median :2.000  
+##  Mean   :2.54   Mean   :2.171   Mean   :1.381   Mean   :2.275  
+##  3rd Qu.:3.00   3rd Qu.:3.000   3rd Qu.:2.000   3rd Qu.:3.000  
+##  Max.   :4.00   Max.   :3.000   Max.   :3.000   Max.   :3.000  
+##  NA&#39;s   :7809   NA&#39;s   :8187    NA&#39;s   :7913    NA&#39;s   :9806   
+##     WTINT2YR         WTMEC2YR         SDMVSTRA        SDMVPSU     
+##  Min.   :  4584   Min.   :     0   Min.   :173.0   Min.   :1.000  
+##  1st Qu.: 14332   1st Qu.:     0   1st Qu.:176.0   1st Qu.:1.000  
+##  Median : 21670   Median : 21718   Median :180.0   Median :1.000  
+##  Mean   : 27404   Mean   : 27404   Mean   :179.9   Mean   :1.492  
+##  3rd Qu.: 33831   3rd Qu.: 38341   3rd Qu.:184.0   3rd Qu.:2.000  
+##  Max.   :170968   Max.   :227108   Max.   :187.0   Max.   :2.000  
+##                                                                   
+##     INDFMPIR    
+##  Min.   :0.000  
+##  1st Qu.:1.180  
+##  Median :2.500  
+##  Mean   :2.708  
+##  3rd Qu.:4.500  
+##  Max.   :5.000  
+##  NA&#39;s   :2041</code></pre>
+<p>Q1: (more on blood pressure! fix one) Does people have association of
+race (black and white) and immigration status(only within black) with
+the development of chronic disease in USA?</p>
+<p>cholestorol (BPQ080), blood pressure(BPQ020), diabatics (a complete
+other dataset, itself diabatics, diq010)</p>
+<p>Just within black, can we compare between male/female? categorize
+gender male, female # RIAGENDR - Gender</p>
 <p>##1.categrize Age yong adults(18-39), middle age (40-59), older
-adults (&gt;60) ##2. categorize gender male, female ##3. having high
-blood pressure greater than 2 times in doctor visit. yes no ###in black.
-origin category, what is the prevalence of #high bloodpressure in young
-adults vs older adults</p>
+adults (&gt;60) (Not now!) ##2. categorize gender male, female #
+RIAGENDR - Gender ##3. having high blood pressure greater than 2 times
+in doctor visit. yes no ###in black. origin category, what is the
+prevalence of #high bloodpressure in young adults vs older adults</p>
 <p>##4. may compare black and white</p>
 <p>##<a href="https://wwwn.cdc.gov/Nchs/Nhanes/2021-2022/DBQ_L.htm" class="uri">https://wwwn.cdc.gov/Nchs/Nhanes/2021-2022/DBQ_L.htm</a>
 diet nutrition data</p>
+<p>Q2. Blood pressure 0/1 (BPQ020). DBQ930 - Main meal planner/preparer:
+{Are you/Is SP} the person who does most of the planning or preparing of
+meals in {your/SP’s} family?0/1 If you do not prepare meal by yourself,
+you can have hypertension as somebody else who is preparing food for
+you, might not know about your health condition. You can also eat junk
+food!</p>
 <p>##problem 2: #DBQ930 - Main meal planner/preparer ##if black people
 do prepare food at home or outside while having hypertention ##link age,
 gender, meal, education level</p>
+<p>Q3: Maybe this variables are a bit complicated, we try other data
+Take 2 variables: PAD790Q - Frequency of moderate LTPA, PAD810Q -
+Frequency of vigorous LTPA</p>
+<p>If it is greater than 150 min per week of moderate PA or 75 min per
+week of vigorous PA</p>
+<p>If black adult does 150 minuites or more Physical Activity (PA), then
+prevalence of hypertension.</p>
+<p><a href="https://wwwn.cdc.gov/Nchs/Nhanes/2021-2022/PAQ_L.htm" class="uri">https://wwwn.cdc.gov/Nchs/Nhanes/2021-2022/PAQ_L.htm</a></p>
 <p>##problem 3: #<a href="https://wwwn.cdc.gov/Nchs/Nhanes/2021-2022/PAQ_L.htm" class="uri">https://wwwn.cdc.gov/Nchs/Nhanes/2021-2022/PAQ_L.htm</a> for
 physical activity #PAD800 - Minutes moderate LTPA how much to do
 exercisein leisure time ##check if black adults had enough physical
