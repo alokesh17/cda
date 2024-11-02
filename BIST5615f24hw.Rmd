@@ -154,8 +154,11 @@ The odds of adult male survival is given by
 Therefore, the odds ratio of survival for females vs. males is given by
 
 \[
-\frac{\# \text{adult females survived}}{\# \text{adult females died}} , \frac{\# \text{adult males survived}}{\# \text{adult males died}} = \frac{\text{adult\_female\_surv}}{\text{adult\_female\_dead}} , \frac{\text{adult\_male\_surv}}{\text{adult\_male\_dead}} = \frac{316}{109}, \frac{338}{1329} = \text{round}\left(\frac{316/109}{338/1329},1\right) = 11.4
+\frac{\# \text{adult females survived}}{\# \text{adult females died}} , \frac{\# \text{adult males survived}}{\# \text{adult males died}} = \frac{\text{adult\_female\_surv}}{\text{adult\_female\_dead}} ,\\
+\frac{\text{adult\_male\_surv}}{\text{adult\_male\_dead}} = \frac{316}{109} \frac{338}{1329} = \text{round}\left(\frac{316/109}{338/1329},1\right) \\
+= 11.4
 \]
+
 
 
 
@@ -240,11 +243,11 @@ p_value <- pnorm(z)
 
 # Display results
 cat("Z-value:", z, "\n")
-cat("P-value:", p_value, "\n")
+cat("P-value:", 1-p_value, "\n")
 
 ```
 
-
+So we reject null.The conclusion is death rate for females was statistically significantly lower than that for males.
 (e) (5 points) Using the entire raw data, determine whether the ``women and children first" policy was successful in
     saving the women and children.
     
