@@ -200,13 +200,21 @@ df_modified_bloodpressure_demography|>
 nh_bp_edu_gender=
   df_modified_bloodpressure_demography|>
   dplyr::select(c("nh_black_white","SEQN","blood_pressure","clg_education","RIAGENDR"))|>
+  mutate(
+    nh_black_white=as.factor(nh_black_white),
+    blood_pressure=as.factor(blood_pressure),
+    clg_education=as.factor(clg_education),
+    RIAGENDR=as.factor(RIAGENDR)
+  )|>
   na.omit()
 ```
 
 
 ```{r}
 nh_bp_gender_table <- table(nh_bp_edu_gender[,"blood_pressure"], nh_bp_edu_gender[,"RIAGENDR"])
+table(nh_bp_edu_gender[,"blood_pressure"])
 nh_bp_gender_table
+addmargins(nh_bp_gender_table)
 ```
 
 
