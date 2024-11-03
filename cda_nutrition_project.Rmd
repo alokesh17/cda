@@ -223,6 +223,17 @@ nh_bp_race_table <- table(nh_bp_edu_gender_immigration[,"blood_pressure"], nh_bp
 
 addmargins(nh_bp_race_table)
 ```
+what if we filter nh_black_white>0? just NH black and white.
+```{r}
+nh_only_black_white=nh_bp_edu_gender_immigration|>
+  filter(nh_black_white!=0)|>
+  mutate(nh_black_white=factor(nh_black_white))
+
+nh_bp_race_B_or_W_table <- table(nh_only_black_white[,"blood_pressure"], nh_only_black_white[,"nh_black_white"])
+
+addmargins(nh_bp_race_B_or_W_table)
+```
+
 
 ```{r}
 nh_bp_immigration_table <- table(nh_bp_edu_gender_immigration[,"blood_pressure"], nh_bp_edu_gender_immigration[,"DMDYRUSR"])
@@ -240,6 +251,15 @@ print(fisher_test$estimate)  # Odds ratio
 print(fisher_test$conf.int)  # Confidence interval for the odds ratio
 fisher_test
 ```
+only in non hispanic the p value is small! So within non hispanic, there might be association between bp and black and white.
+```{r}
+
+fisher_test <- fisher.test(nh_bp_race_B_or_W_table)
+print(fisher_test$estimate)  # Odds ratio
+print(fisher_test$conf.int)  # Confidence interval for the odds ratio
+fisher_test
+```
+
 
 
 b) epitools
@@ -251,6 +271,12 @@ library(epitools)
 odds_ratio_result <- oddsratio(nh_bp_gender_table)
 print(odds_ratio_result)
 ```
+
+
+
+
+
+
 c) gamma:1 indicates a perfect positive association, -1 indicates a perfect negative association, 0 suggests no association.
 
 ```{r}
@@ -259,12 +285,29 @@ gamma_result <- GKgamma(nh_bp_gender_table)
 print(gamma_result)
 ```
 
-race and bp are related.
+race and bp are not related.
 ```{r}
 library(vcdExtra)
 gamma_result <- GKgamma(nh_bp_race_table)
 print(gamma_result)
 ```
+
+only in non-hispanic
+```{r}
+
+library(vcdExtra)
+gamma_result <- GKgamma(nh_bp_race_B_or_W_table)
+print(gamma_result)
+```
+
+
+
+
+```{r}
+library(MESS)
+gkgamma(nh_bp_race_table, conf.level=0.95)
+```
+
 
 bp and immigration are related.
 ```{r}
@@ -273,6 +316,12 @@ library(vcdExtra)
 gamma_result <- GKgamma(nh_bp_immigration_table)
 print(gamma_result)
 ```
+
+```{r}
+library(MESS)
+gkgamma(nh_bp_immigration_table, conf.level=0.95)
+```
+
 
 
 ##1.categrize Age yong adults(18-39), middle age (40-59), older adults (>60)
@@ -288,8 +337,14 @@ print(gamma_result)
 
 
 ```{r}
-
+data <- read_xpt("~/downloads/DBQ_L.XPT")
+df_diet=as.data.frame(data)
 ```
+
+```{r}
+head(df_diet); dim(df_diet)
+```
+
 
 Q2. Blood pressure 0/1 (BPQ020). 
 DBQ930 - Main meal planner/preparer: {Are you/Is SP} the person who does 
