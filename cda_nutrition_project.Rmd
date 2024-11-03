@@ -217,7 +217,39 @@ nh_bp_gender_table
 addmargins(nh_bp_gender_table)
 ```
 
+```{r}
+nh_bp_race_table <- table(nh_bp_edu_gender[,"blood_pressure"], nh_bp_edu_gender[,"nh_black_white"])
 
+addmargins(nh_bp_race_table)
+```
+
+a) odds ratio test: fisher
+
+```{r}
+
+fisher_test <- fisher.test(nh_bp_gender_table)
+print(fisher_test$estimate)  # Odds ratio
+print(fisher_test$conf.int)  # Confidence interval for the odds ratio
+fisher_test
+```
+
+
+b) epitools
+
+```{r}
+library(epitools)
+
+# Calculate odds ratio with confidence interval
+odds_ratio_result <- oddsratio(nh_bp_gender_table)
+print(odds_ratio_result)
+```
+c) gamma:1 indicates a perfect positive association, -1 indicates a perfect negative association, 0 suggests no association.
+
+```{r}
+library(vcdExtra)
+gamma_result <- GKgamma(nh_bp_gender_table)
+print(gamma_result)
+```
 
 
 
