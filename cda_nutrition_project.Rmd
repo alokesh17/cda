@@ -37,7 +37,7 @@ colnames(df_demography)
 
 
 ```{r}
-
+summary(df_demography)
 ```
 
 
@@ -49,9 +49,21 @@ DMDEDUC2 - Education level - Adults 20+. Whether has a college education or not!
 If it is 1,2,3 then no college education. If 4 and 5, then has college education.
 
 RIDRETH1 - Race/Hispanic origin from 1 to 5, see from codebook
-Value 4 is concerned. Non hispanic black.
+Value 4 is concerned. Non Hispanic black. 3	Non-Hispanic White
+4	Non-Hispanic Black.
 
 DMDYRUSR - Length of time in US. Immigration effects on blood pressure a lot. 
+
+5006 people had college education. Non hispanic black are 1597. DMDYRUSR has 
+10058 NA (did the just entered?)! 5575 male, 6358 female.
+```{r}
+df_demography|>
+  mutate(DMDEDUC2=ifelse(DMDEDUC2>3,1,0))|> #pull(DMDEDUC2)|>table(), >3 college education
+  mutate(RIDRETH1=ifelse(RIDRETH1==4,1,0))|>#|>pull(RIDRETH1)|>table() ## Non Hispanic black are 1, rst 0
+  #pull(RIAGENDR)|>table(), 1 male, 2 female, check from doc file, no NA
+  
+```
+
 
 
 
@@ -118,20 +130,84 @@ head(data_bloodpressure)
 ```
 
 ```{r}
-summary(df_demography)
+summary(data_bloodpressure)
 ```
+```{r}
+data_bloodpressure|>
+  pull(BPQ020)|>
+  table()
+```
+
+
+##final question
+
 Q1: (more on blood pressure! fix one)
 Does people have
 association of race (black and white) and immigration status(only within black) 
 with the development of chronic disease in USA? 
 
-cholestorol (BPQ080), 
-blood pressure(BPQ020),
+cholestorol (BPQ080),  ##almost no NA, only 3
+blood pressure(BPQ020), ##almost no NA, only 3, 1 yes, 2 no, 7 refused, 10 donot know
 diabatics (a complete other dataset, itself diabatics, diq010)
 
 
 Just within black, can we compare between male/female?
 categorize gender male, female # RIAGENDR - Gender
+
+
+##solution of Q1
+
+```{r}
+df_modified_demography=
+  df_demography|>
+  mutate(clg_education=ifelse(DMDEDUC2>3,1,0))|> #pull(DMDEDUC2)|>table(), >3 college education
+  mutate(clg_education=ifelse(clg_education=="NA",0,clg_education))|>##"NA" also no clg education
+  mutate(nh_black=ifelse(RIDRETH1==4,1,0))|>#|>pull(RIDRETH1)|>table() ## Non Hispanic black are 1, rst 0
+  mutate(nh_white=ifelse(RIDRETH1==3,2,0))|>## Non Hispanic white are 2, rst 0
+  mutate(nh_black_white=nh_black+nh_white)
+  #pull(RIAGENDR)|>table(), 1 male, 2 female, check from doc file, no NA
+  
+df_modified_bloodpressure=
+  data_bloodpressure|>
+  dplyr::select(c("SEQN","BPQ020"))|>
+  mutate(blood_pressure=ifelse(BPQ020>1,2,1))|> ##if donot know or refused, lets say them no,##1 yes, 2 no.
+ mutate(blood_pressure=ifelse(blood_pressure=="NA",2,blood_pressure))
+
+df_modified_bloodpressure_demography=
+  df_modified_bloodpressure|>
+  left_join(df_modified_demography,by=c("SEQN"))
+
+
+dim(df_modified_bloodpressure_demography)
+```
+
+```{r}
+df_modified_bloodpressure|>pull(blood_pressure)|>table()
+```
+
+
+```{r}
+df_modified_bloodpressure_demography|>
+  dplyr::select(c("nh_black_white","SEQN","blood_pressure","clg_education","RIAGENDR"))|>
+  na.omit()|> ## still some NA, so just drop them
+  summary()
+```
+```{r}
+##nh black=1, white=2
+##bp=1 yes, 2 no
+##clg_education= 1 yes, 0 no
+##gender RIAGENDR=1 male 2 female 
+nh_bp_edu_gender=
+  df_modified_bloodpressure_demography|>
+  dplyr::select(c("nh_black_white","SEQN","blood_pressure","clg_education","RIAGENDR"))|>
+  na.omit()
+```
+
+
+```{r}
+nh_bp_gender_table <- table(nh_bp_edu_gender[,"blood_pressure"], nh_bp_edu_gender[,"RIAGENDR"])
+nh_bp_gender_table
+```
 
 
 
