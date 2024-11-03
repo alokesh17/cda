@@ -167,6 +167,7 @@ df_modified_demography=
   mutate(nh_black_white=nh_black+nh_white)
   #pull(RIAGENDR)|>table(), 1 male, 2 female, check from doc file, no NA
   
+  
 df_modified_bloodpressure=
   data_bloodpressure|>
   dplyr::select(c("SEQN","BPQ020"))|>
@@ -188,8 +189,8 @@ df_modified_bloodpressure|>pull(blood_pressure)|>table()
 
 ```{r}
 df_modified_bloodpressure_demography|>
-  dplyr::select(c("nh_black_white","SEQN","blood_pressure","clg_education","RIAGENDR"))|>
-  na.omit()|> ## still some NA, so just drop them
+  dplyr::select(c("nh_black_white","SEQN","blood_pressure","clg_education","RIAGENDR","DMDYRUSR"))|>
+  #na.omit()|> ## still some NA, so just drop them
   summary()
 ```
 ```{r}
@@ -197,9 +198,9 @@ df_modified_bloodpressure_demography|>
 ##bp=1 yes, 2 no
 ##clg_education= 1 yes, 0 no
 ##gender RIAGENDR=1 male 2 female 
-nh_bp_edu_gender=
+nh_bp_edu_gender_immigration=
   df_modified_bloodpressure_demography|>
-  dplyr::select(c("nh_black_white","SEQN","blood_pressure","clg_education","RIAGENDR"))|>
+  dplyr::select(c("nh_black_white","SEQN","blood_pressure","clg_education","RIAGENDR","DMDYRUSR"))|>
   mutate(
     nh_black_white=as.factor(nh_black_white),
     blood_pressure=as.factor(blood_pressure),
@@ -211,17 +212,24 @@ nh_bp_edu_gender=
 
 
 ```{r}
-nh_bp_gender_table <- table(nh_bp_edu_gender[,"blood_pressure"], nh_bp_edu_gender[,"RIAGENDR"])
+nh_bp_gender_table <- table(nh_bp_edu_gender_immigration[,"blood_pressure"], nh_bp_edu_gender_immigration[,"RIAGENDR"])
 table(nh_bp_edu_gender[,"blood_pressure"])
 nh_bp_gender_table
 addmargins(nh_bp_gender_table)
 ```
 
 ```{r}
-nh_bp_race_table <- table(nh_bp_edu_gender[,"blood_pressure"], nh_bp_edu_gender[,"nh_black_white"])
+nh_bp_race_table <- table(nh_bp_edu_gender_immigration[,"blood_pressure"], nh_bp_edu_gender_immigration[,"nh_black_white"])
 
 addmargins(nh_bp_race_table)
 ```
+
+```{r}
+nh_bp_immigration_table <- table(nh_bp_edu_gender_immigration[,"blood_pressure"], nh_bp_edu_gender_immigration[,"DMDYRUSR"])
+
+addmargins(nh_bp_immigration_table)
+```
+
 
 a) odds ratio test: fisher
 
@@ -251,6 +259,20 @@ gamma_result <- GKgamma(nh_bp_gender_table)
 print(gamma_result)
 ```
 
+race and bp are related.
+```{r}
+library(vcdExtra)
+gamma_result <- GKgamma(nh_bp_race_table)
+print(gamma_result)
+```
+
+bp and immigration are related.
+```{r}
+
+library(vcdExtra)
+gamma_result <- GKgamma(nh_bp_immigration_table)
+print(gamma_result)
+```
 
 
 ##1.categrize Age yong adults(18-39), middle age (40-59), older adults (>60)
