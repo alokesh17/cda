@@ -345,13 +345,51 @@ df_diet=as.data.frame(data)
 head(df_diet); dim(df_diet)
 ```
 
+```{r}
+df_self_meal_prepare=
+df_diet|>
+  dplyr::select(c("SEQN","DBQ930"))|> ##1 yes, 2 no, 9 donot know
+  filter(DBQ930!=9)|>
+  mutate(self_meal_prepare=as.factor(DBQ930))#|>pull(self_meal_prepare)|>table()
+  
+
+df_self_meal_prepare|>pull(self_meal_prepare)|>table()
+```
+
+```{r}
+df_bp_self_meal_prepare=
+df_modified_bloodpressure|>
+  left_join(df_self_meal_prepare,by=c("SEQN"))
+
+table(df_bp_self_meal_prepare$blood_pressure,df_bp_self_meal_prepare$self_meal_prepare)|>
+  addmargins()
+
+df_bp_self_meal_prepare_table=
+
+table(df_bp_self_meal_prepare$blood_pressure,
+      df_bp_self_meal_prepare$self_meal_prepare)
+```
+
+```{r}
+fisher_test <- fisher.test(df_bp_self_meal_prepare_table)
+```
+
+```{r}
+fisher_test
+```
+```{r}
+library(MESS)
+gkgamma(df_bp_self_meal_prepare_table, conf.level=0.95)
+```
+
+
 
 Q2. Blood pressure 0/1 (BPQ020). 
 DBQ930 - Main meal planner/preparer: {Are you/Is SP} the person who does 
 most of the planning or preparing of meals in {your/SP's} family?0/1
 If you do not prepare meal by yourself, you can have hypertension as somebody else who is preparing food for you, might not know about your health condition. You can also eat junk food!
 
-
+Soln: Based on the above analysis bp and meal preparation are associated.
 
 ##problem 2:
 #DBQ930 - Main meal planner/preparer
@@ -371,7 +409,7 @@ of hypertension.
 
 
 https://wwwn.cdc.gov/Nchs/Nhanes/2021-2022/PAQ_L.htm
-
+Find the data in questioaire
 
 
 ##problem 3:
@@ -379,6 +417,59 @@ https://wwwn.cdc.gov/Nchs/Nhanes/2021-2022/PAQ_L.htm
 #PAD800 - Minutes moderate LTPA how much to do exercisein leisure time
 ##check if black adults had enough physical activity and blood pressure relation
 #
+
+```{r}
+data_physical_activity <- read_xpt("~/downloads/PAQ_L.XPT")
+data_physical_activity<-as.data.frame(data_physical_activity)
+colnames(data_physical_activity)
+```
+
+
+```{r}
+df_modified_physical_activity=
+data_physical_activity|>
+  mutate(moderate_LTPA=PAD790Q,
+         vigorous_LTPA=PAD810Q )|>
+  mutate(total_activity=moderate_LTPA+vigorous_LTPA)|>
+  mutate(total_activity_index=ifelse(total_activity>150,1,0))|>#|>summary()
+  dplyr::select(c("SEQN","total_activity_index"))|>
+  mutate(total_activity_index=as.factor(total_activity_index))
+
+df_modified_physical_activity
+  
+```
+
+
+```{r}
+df_bp_activity=
+df_modified_bloodpressure|>
+  left_join(df_modified_physical_activity,by=c("SEQN"))|>
+  dplyr::select(c("SEQN","total_activity_index","blood_pressure"))
+
+table(df_bp_activity$blood_pressure,df_bp_activity$total_activity_index)|>
+  addmargins()
+
+df_bp_activity_table=
+
+table(df_bp_activity$blood_pressure,df_bp_activity$total_activity_index)
+```
+
+```{r}
+library(MESS)
+gkgamma(df_bp_activity_table, conf.level=0.95)
+```
+
+```{r}
+fisher_test <- fisher.test(df_bp_activity_table)
+fisher_test
+```
+
+so in general, no association. Can we check for black NH?
+
+
+
+
+
 
 
 
