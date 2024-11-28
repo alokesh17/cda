@@ -2,7 +2,9 @@
 title: "cda_nutrition_project"
 author: "Alokesh Manna"
 date: "`r Sys.Date()`"
-output: html_document
+output:
+  html_document: default
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -16,6 +18,8 @@ All the data is in XPT format. So need to have in a data frame. The explanation 
 # install.packages("writexl")
 library(haven)
 library(writexl)
+library(dplyr)
+library(tidyverse)
 ```
 
 First we have the demography data downloaded.
@@ -59,7 +63,7 @@ DMDYRUSR - Length of time in US. Immigration effects on blood pressure a lot.
 ```{r}
 df_demography|>
   mutate(DMDEDUC2=ifelse(DMDEDUC2>3,1,0))|> #pull(DMDEDUC2)|>table(), >3 college education
-  mutate(RIDRETH1=ifelse(RIDRETH1==4,1,0))|>#|>pull(RIDRETH1)|>table() ## Non Hispanic black are 1, rst 0
+  mutate(RIDRETH1=ifelse(RIDRETH1==4,1,0))#|>#|>pull(RIDRETH1)|>table() ## Non Hispanic black are 1, rst 0
   #pull(RIAGENDR)|>table(), 1 male, 2 female, check from doc file, no NA
   
 ```
