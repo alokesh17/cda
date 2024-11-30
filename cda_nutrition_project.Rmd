@@ -227,8 +227,8 @@ nh_bp_edu_gender_immigration
 Can we do some regression techniques? nh_black_white has also 0.
 ```{r}
 model_reg1 <- glm(
-  blood_pressure ~ nh_black_white + clg_education
-  +clg_education+ RIAGENDR+ DMDYRUSR
+  blood_pressure ~ (nh_black_white + clg_education
+  +clg_education+ RIAGENDR+ DMDYRUSR)^2
     
     , family = binomial(link = "logit"), 
   
@@ -237,11 +237,15 @@ model_reg1 <- glm(
 
 ```
 
+```{r}
+summary(model_reg1)
+```
+
 
 ```{r}
 model_reg2 <- glm(
-  blood_pressure ~ nh_black_white + clg_education
-  +clg_education+ RIAGENDR+ DMDYRUSR
+  blood_pressure ~ (nh_black_white + clg_education
+  +clg_education+ RIAGENDR+ DMDYRUSR)^2
     
     , family = binomial(link = "logit"), 
   
