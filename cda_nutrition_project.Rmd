@@ -187,6 +187,11 @@ dim(df_modified_bloodpressure_demography)
 ```
 
 ```{r}
+colnames(df_modified_bloodpressure_demography)
+```
+
+
+```{r}
 df_modified_bloodpressure|>pull(blood_pressure)|>table()
 ```
 
@@ -198,7 +203,7 @@ df_modified_bloodpressure_demography|>
   summary()
 ```
 ```{r}
-##nh black=1, white=2
+##nh black=1, white=2, other=0
 ##bp=1 yes, 2 no
 ##clg_education= 1 yes, 0 no
 ##gender RIAGENDR=1 male 2 female 
@@ -216,7 +221,60 @@ nh_bp_edu_gender_immigration=
 
 
 ```{r}
-nh_bp_gender_table <- table(nh_bp_edu_gender_immigration[,"blood_pressure"], nh_bp_edu_gender_immigration[,"RIAGENDR"])
+nh_bp_edu_gender_immigration
+```
+
+Can we do some regression techniques? nh_black_white has also 0.
+```{r}
+model_reg1 <- glm(
+  blood_pressure ~ nh_black_white + clg_education
+  +clg_education+ RIAGENDR+ DMDYRUSR
+    
+    , family = binomial(link = "logit"), 
+  
+  data = nh_bp_edu_gender_immigration
+  )
+
+```
+
+
+```{r}
+model_reg2 <- glm(
+  blood_pressure ~ nh_black_white + clg_education
+  +clg_education+ RIAGENDR+ DMDYRUSR
+    
+    , family = binomial(link = "logit"), 
+  
+  data = nh_bp_edu_gender_immigration|>
+    filter(nh_black_white!=0)
+  )
+
+```
+
+```{r}
+summary(model_reg2)
+```
+
+```{r}
+library(logistf)
+
+model_f=logistf(blood_pressure ~ nh_black_white + clg_education
+  +clg_education+RIAGENDR+DMDYRUSR
+    
+    , family = binomial(link = "logit"), 
+  
+  data = nh_bp_edu_gender_immigration)
+
+summary(model_f)
+```
+
+
+
+```{r}
+nh_bp_gender_table <- table(
+  nh_bp_edu_gender_immigration[,"blood_pressure"], 
+  nh_bp_edu_gender_immigration[,"RIAGENDR"]
+  )
 table(nh_bp_edu_gender[,"blood_pressure"])
 nh_bp_gender_table
 addmargins(nh_bp_gender_table)
