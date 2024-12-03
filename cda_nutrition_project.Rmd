@@ -40,6 +40,11 @@ colnames(df_demography)
 ```
 
 
+
+
+
+
+
 ```{r}
 summary(df_demography)
 ```
@@ -242,6 +247,8 @@ summary(model_reg1)
 ```
 
 
+
+
 ```{r}
 model_reg2 <- glm(
   blood_pressure ~ (nh_black_white + clg_education
@@ -258,6 +265,48 @@ model_reg2 <- glm(
 ```{r}
 summary(model_reg2)
 ```
+
+```{r}
+anova(model_reg2,test = "Chisq")
+```
+
+```{r}
+library(pROC)
+actual_outcomes<-
+  
+  nh_bp_edu_gender_immigration|>
+    filter(nh_black_white!=0)|>
+  pull(blood_pressure)
+
+fitted_values<-
+  
+  model_reg2$fitted.values
+  
+  
+roc_curve <- roc(actual_outcomes, fitted_values)
+auc(roc_curve)
+plot(roc_curve)
+
+```
+```{r}
+library(pROC)
+actual_outcomes<-
+  
+  nh_bp_edu_gender_immigration|>
+    #filter(nh_black_white!=0)|>
+  pull(blood_pressure)
+
+fitted_values<-
+  
+  model_reg1$fitted.values
+  
+  
+roc_curve <- roc(actual_outcomes, fitted_values)
+auc(roc_curve)
+plot(roc_curve)
+
+```
+
 
 ```{r}
 library(logistf)
