@@ -449,6 +449,28 @@ gkgamma(df_bp_self_meal_prepare_table, conf.level=0.95)
 ```
 
 
+```{r}
+df_bp_self_meal_prepare
+```
+
+
+
+```{r}
+dat=na.omit(df_bp_self_meal_prepare)
+
+mod_bp_meal=glm(as.factor(blood_pressure)~self_meal_prepare,
+     family = binomial(link = "logit"), 
+  
+  data = dat
+    
+)
+```
+
+
+```{r}
+summary(mod_bp_meal)
+```
+
 
 Q2. Blood pressure 0/1 (BPQ020). 
 DBQ930 - Main meal planner/preparer: {Are you/Is SP} the person who does 
@@ -534,8 +556,24 @@ so in general, no association. Can we check for black NH?
 
 
 
+```{r}
+df_bp_activity
+```
 
+```{r}
+mod_activity=
+  glm(
+  as.factor(blood_pressure-1)~total_activity_index,
+    
+  family = binomial(link = "logit"), 
+  
+  data =df_bp_activity
+  )
+```
 
+```{r}
+summary(mod_activity)
+```
 
 
 

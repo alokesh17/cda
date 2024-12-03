@@ -111,9 +111,28 @@ table( hw1q2$sex, hw1q2$class, hw1q2$survival)
 ```
 
 ```{r}
+library(dplyr)
+hw1q2=hw1q2|>
+  mutate(class=as.factor(class))|>
+  mutate(age=as.factor(age))|>
+  mutate(sex=as.factor(sex))|>
+  mutate(survival=as.factor(survival))
+```
+
+
+```{r}
+fit <- glm(survival ~ sex * age, family = binomial(link = "logit"), data = hw1q2)
+summary(fit)
+
+```
+
+```{r}
 fit <- glm(survival ~ sex * class, family = binomial(link = "logit"), data = hw1q2)
 summary(fit)
 
+```
+```{r}
+hw1q2
 ```
 
 
@@ -124,4 +143,39 @@ fit <- glm(survival ~ sex , family = binomial(link = "logit"), data = hw1q2)
 # Display the summary of the model
 summary(fit)
 ```
+
+```{r}
+n11 <- hw1q2 %>% filter(survival==1 & (sex == 0 | age==0)) %>% nrow()
+n12 <- hw1q2 %>% filter(survival==0 & (sex == 0 | age==0)) %>% nrow()
+n21 <- hw1q2 %>% filter(survival==1 & (sex == 1 & age==1)) %>% nrow()
+n22 <- hw1q2 %>% filter(survival==0 & (sex == 1 & age==1)) %>% nrow()
+```
+
+
+
+
+```{r}
+summary_df <- hw1q2 %>%
+mutate(`women or children` = ifelse(sex == 0 | age == 0, 1, 0)) %>%
+group_by(`women or children`) %>%
+summarize(y = sum(survival == 1), n = n()) %>% as.data.frame()
+model <- glm(cbind(y, n - y) ~ `women or children`, data = summary_df,
+family = binomial(link = "logit"))
+summary_df[c(2,1),]
+```
+```{r}
+summary(model
+        )
+```
+
+
+
+
+
+
+
+
+
+
+
 
