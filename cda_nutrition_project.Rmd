@@ -51,7 +51,7 @@ summary(df_demography)
 
 
 
-RIDAGEYR - Age in years at screening will be taken.
+RIDAGEYR - Age in years at screening will be taken. Need to filter >17, ie 18 and above.
 
 DMDEDUC2 - Education level - Adults 20+. Whether has a college education or not!
 
@@ -67,6 +67,7 @@ DMDYRUSR - Length of time in US. Immigration effects on blood pressure a lot.
 10058 NA (did the just entered?)! 5575 male, 6358 female.
 ```{r}
 df_demography|>
+  filter(RIDAGEYR>17)|>
   mutate(DMDEDUC2=ifelse(DMDEDUC2>3,1,0))|> #pull(DMDEDUC2)|>table(), >3 college education
   mutate(RIDRETH1=ifelse(RIDRETH1==4,1,0))#|>#|>pull(RIDRETH1)|>table() ## Non Hispanic black are 1, rst 0
   #pull(RIAGENDR)|>table(), 1 male, 2 female, check from doc file, no NA
@@ -203,7 +204,7 @@ df_modified_bloodpressure|>pull(blood_pressure)|>table()
 
 ```{r}
 df_modified_bloodpressure_demography|>
-  dplyr::select(c("nh_black_white","SEQN","blood_pressure","clg_education","RIAGENDR","DMDYRUSR"))|>
+  dplyr::select(c("nh_black_white","SEQN","blood_pressure","clg_education","RIAGENDR","DMDYRUSR","RIDAGEYR"))|>
   #na.omit()|> ## still some NA, so just drop them
   summary()
 ```
@@ -214,13 +215,14 @@ df_modified_bloodpressure_demography|>
 ##gender RIAGENDR=1 male 2 female 
 nh_bp_edu_gender_immigration=
   df_modified_bloodpressure_demography|>
-  dplyr::select(c("nh_black_white","SEQN","blood_pressure","clg_education","RIAGENDR","DMDYRUSR"))|>
+  dplyr::select(c("nh_black_white","SEQN","blood_pressure","clg_education","RIAGENDR","DMDYRUSR","RIDAGEYR"))|>
   mutate(
     nh_black_white=as.factor(nh_black_white),
     blood_pressure=as.factor(blood_pressure),
     clg_education=as.factor(clg_education),
     RIAGENDR=as.factor(RIAGENDR)
   )|>
+  
   na.omit()
 ```
 
@@ -233,7 +235,7 @@ Can we do some regression techniques? nh_black_white has also 0.
 ```{r}
 model_reg1 <- glm(
   blood_pressure ~ (nh_black_white + clg_education
-  +clg_education+ RIAGENDR+ DMDYRUSR)^2
+  +clg_education+ RIAGENDR+ DMDYRUSR+RIDAGEYR)^2
     
     , family = binomial(link = "logit"), 
   
@@ -252,7 +254,7 @@ summary(model_reg1)
 ```{r}
 model_reg2 <- glm(
   blood_pressure ~ (nh_black_white + clg_education
-  +clg_education+ RIAGENDR+ DMDYRUSR)^2
+  +clg_education+ RIAGENDR+ DMDYRUSR+RIDAGEYR)^2
     
     , family = binomial(link = "logit"), 
   
@@ -285,7 +287,7 @@ fitted_values<-
   
 roc_curve <- roc(actual_outcomes, fitted_values)
 auc(roc_curve)
-plot(roc_curve)
+plot(roc_curve, main = "ROC Curve for only non hispanic population")
 
 ```
 ```{r}
@@ -303,7 +305,7 @@ fitted_values<-
   
 roc_curve <- roc(actual_outcomes, fitted_values)
 auc(roc_curve)
-plot(roc_curve)
+plot(roc_curve, main = "ROC Curve for overall population")
 
 ```
 
@@ -521,6 +523,57 @@ summary(mod_bp_meal)
 ```
 
 
+```{r}
+library(pROC)
+actual_outcomes<-
+  
+  dat$blood_pressure
+
+fitted_values<-
+  
+  mod_bp_meal$fitted.values
+  
+  
+roc_curve <- roc(actual_outcomes, fitted_values)
+auc(roc_curve)
+plot(roc_curve)
+
+```
+whats about to include all variables?
+
+```{r}
+#nh_bp_edu_gender_immigration
+
+df_nh_bp_edu_gender_immigration_self_meal_prepare=
+nh_bp_edu_gender_immigration|>
+  left_join(df_self_meal_prepare,by=c("SEQN"))
+
+df_nh_bp_edu_gender_immigration_self_meal_prepare
+```
+
+
+```{r}
+mod_nh_bp_meal=glm(as.factor(blood_pressure)~(nh_black_white + clg_education
+  +clg_education+ RIAGENDR+ DMDYRUSR+RIDAGEYR+self_meal_prepare
+)^2,
+     family = binomial(link = "logit"), 
+  
+  data =df_nh_bp_edu_gender_immigration_self_meal_prepare|>filter(nh_black_white!=0) 
+)
+```
+
+
+
+```{r}
+summary(mod_nh_bp_meal)
+```
+
+
+```{r}
+
+```
+
+
 Q2. Blood pressure 0/1 (BPQ020). 
 DBQ930 - Main meal planner/preparer: {Are you/Is SP} the person who does 
 most of the planning or preparing of meals in {your/SP's} family?0/1
@@ -610,13 +663,18 @@ df_bp_activity
 ```
 
 ```{r}
+df_bp_activity_modified=
+  na.omit(df_bp_activity)|>
+  mutate(blood_pressure=as.factor(blood_pressure))
+  
+
 mod_activity=
   glm(
-  as.factor(blood_pressure-1)~total_activity_index,
+  blood_pressure~total_activity_index,
     
   family = binomial(link = "logit"), 
   
-  data =df_bp_activity
+  data =df_bp_activity_modified
   )
 ```
 
@@ -625,4 +683,20 @@ summary(mod_activity)
 ```
 
 
+```{r}
+library(pROC)
+actual_outcomes<-
+  
+df_bp_activity_modified$blood_pressure
+
+fitted_values<-
+  
+  mod_activity$fitted.values
+  
+  
+roc_curve <- roc(actual_outcomes, fitted_values)
+auc(roc_curve)
+plot(roc_curve)
+
+```
 
