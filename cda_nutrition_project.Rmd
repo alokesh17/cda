@@ -235,7 +235,9 @@ Can we do some regression techniques? nh_black_white has also 0.
 ```{r}
 model_reg1 <- glm(
   blood_pressure ~ (nh_black_white + clg_education
-  +clg_education+ RIAGENDR+ DMDYRUSR+RIDAGEYR)^2
+  +clg_education+ RIAGENDR+ DMDYRUSR
+  +RIDAGEYR
+  )^2
     
     , family = binomial(link = "logit"), 
   
@@ -254,7 +256,9 @@ summary(model_reg1)
 ```{r}
 model_reg2 <- glm(
   blood_pressure ~ (nh_black_white + clg_education
-  +clg_education+ RIAGENDR+ DMDYRUSR+RIDAGEYR)^2
+  +clg_education+ RIAGENDR+ DMDYRUSR
+  +RIDAGEYR
+  )^2
     
     , family = binomial(link = "logit"), 
   
@@ -553,12 +557,13 @@ df_nh_bp_edu_gender_immigration_self_meal_prepare
 
 
 ```{r}
-mod_nh_bp_meal=glm(as.factor(blood_pressure)~(nh_black_white + clg_education
+mod_nh_bp_meal=glm(as.factor(blood_pressure)~(nh_black_white 
   +clg_education+ RIAGENDR+ DMDYRUSR+RIDAGEYR+self_meal_prepare
 )^2,
      family = binomial(link = "logit"), 
   
-  data =df_nh_bp_edu_gender_immigration_self_meal_prepare|>filter(nh_black_white!=0) 
+  data =df_nh_bp_edu_gender_immigration_self_meal_prepare
+#|>filter(nh_black_white!=0) 
 )
 ```
 
@@ -632,9 +637,13 @@ df_modified_physical_activity
 
 ```{r}
 df_bp_activity=
-df_modified_bloodpressure|>
+df_nh_bp_edu_gender_immigration_self_meal_prepare|>
+#df_modified_bloodpressure|>
   left_join(df_modified_physical_activity,by=c("SEQN"))|>
-  dplyr::select(c("SEQN","total_activity_index","blood_pressure"))
+# |>
+   dplyr::select(c("SEQN","total_activity_index","blood_pressure", "nh_black_white", "clg_education",
+  "clg_education", "RIAGENDR", "DMDYRUSR",
+  "RIDAGEYR"))
 
 table(df_bp_activity$blood_pressure,df_bp_activity$total_activity_index)|>
   addmargins()
@@ -699,4 +708,109 @@ auc(roc_curve)
 plot(roc_curve)
 
 ```
+
+
+```{r}
+
+
+mod_activity_withOtherCovariates=
+  glm(
+  blood_pressure~ (nh_black_white + clg_education
+  +clg_education+ RIAGENDR+ DMDYRUSR
+  +RIDAGEYR+total_activity_index
+  )^2,
+    
+  family = binomial(link = "logit"), 
+  
+  data =df_bp_activity_modified
+  )
+```
+
+
+
+
+
+```{r}
+summary(mod_activity_withOtherCovariates)
+```
+
+
+Can we use lightgbm? some tree based approach? 
+```{r}
+colnames(df_bp_activity_modified)
+dim(df_bp_activity_modified)
+set.seed(42)
+train_idx <- sample(1:nrow(df_bp_activity_modified), size = 0.8 * nrow(df_bp_activity_modified))
+train_data <-df_bp_activity_modified[train_idx, ]
+test_data <- df_bp_activity_modified[-train_idx, ]
+
+# Separate features and target variable
+train_X <- as.matrix(train_data[, -c(1,3)])
+train_y <- train_data[, 3]
+
+test_X <- as.matrix(test_data[, -c(1,3)])
+test_y <- test_data[, 3]
+```
+
+```{r}
+library(lightgbm)
+
+# Create LightGBM Dataset for training and testing
+train_lgb <- lgb.Dataset(data = train_X, label = train_y)
+test_lgb <- lgb.Dataset(data = test_X, label = test_y)
+
+```
+
+
+
+```{r}
+params <- list(
+  objective = "multiclass", 
+  num_class = 3, 
+  metric = "multi_logloss", 
+  boosting_type = "gbdt", 
+  num_leaves = 31, 
+  learning_rate = 0.05, 
+  feature_fraction = 0.9, 
+  bagging_fraction = 0.8, 
+  bagging_freq = 5
+)
+
+```
+
+
+
+```{r}
+# Train the model
+model <- lgb.train(
+  params = params,
+  data = train_lgb,
+  nrounds = 100,                # 'num_round' is now 'nrounds'
+  early_stopping_rounds = 10,    # Early stopping works as before
+  valids = list(test = test_lgb) # 'valid_sets' is now 'valids'
+)
+
+
+```
+```{r}
+# Make predictions
+pred <- predict(model, test_X)
+pred_labels <- max.col(pred) - 1  # Convert to class labels
+
+# Evaluate accuracy
+accuracy <- sum(pred_labels == test_y) / length(test_y)
+print(paste("Accuracy:", round(accuracy, 4)))
+```
+
+```{r}
+# Get feature importance
+importance <- lgb.importance(model)
+
+# View the feature importance
+print(importance)
+lgb.plot.importance(importance, top_n = 10, measure = "Gain")
+
+```
+
+
 
