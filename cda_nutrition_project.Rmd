@@ -204,7 +204,7 @@ df_modified_bloodpressure|>pull(blood_pressure)|>table()
 
 ```{r}
 df_modified_bloodpressure_demography|>
-  dplyr::select(c("nh_black_white","SEQN","blood_pressure","clg_education","RIAGENDR","DMDYRUSR","RIDAGEYR"))|>
+  dplyr::select(c("nh_black_white","SEQN","blood_pressure","clg_education","RIAGENDR","DMDYRUSR","RIDAGEYR","DMDMARTZ"))|>
   #na.omit()|> ## still some NA, so just drop them
   summary()
 ```
@@ -213,14 +213,17 @@ df_modified_bloodpressure_demography|>
 ##bp=1 yes, 2 no
 ##clg_education= 1 yes, 0 no
 ##gender RIAGENDR=1 male 2 female 
+#DMDMARTZ - Marital status 1	Married/Living with partner	,2	Widowed/Divorced/Separated
+#3	Never married,77	Refused,99	Don't know
 nh_bp_edu_gender_immigration=
   df_modified_bloodpressure_demography|>
-  dplyr::select(c("nh_black_white","SEQN","blood_pressure","clg_education","RIAGENDR","DMDYRUSR","RIDAGEYR"))|>
+  dplyr::select(c("nh_black_white","SEQN","blood_pressure","clg_education","RIAGENDR","DMDYRUSR","RIDAGEYR","DMDMARTZ"))|>
   mutate(
     nh_black_white=as.factor(nh_black_white),
     blood_pressure=as.factor(blood_pressure),
     clg_education=as.factor(clg_education),
-    RIAGENDR=as.factor(RIAGENDR)
+    RIAGENDR=as.factor(RIAGENDR),
+    DMDMARTZ=as.factor(DMDMARTZ)
   )|>
   
   na.omit()
@@ -334,7 +337,7 @@ nh_bp_gender_table <- table(
   nh_bp_edu_gender_immigration[,"blood_pressure"], 
   nh_bp_edu_gender_immigration[,"RIAGENDR"]
   )
-table(nh_bp_edu_gender[,"blood_pressure"])
+#table(nh_bp_gender[,"blood_pressure"])
 nh_bp_gender_table
 addmargins(nh_bp_gender_table)
 ```
@@ -554,15 +557,18 @@ nh_bp_edu_gender_immigration|>
 
 df_nh_bp_edu_gender_immigration_self_meal_prepare
 ```
+```{r}
+colnames(df_nh_bp_edu_gender_immigration_self_meal_prepare)
+```
 
 
 ```{r}
 mod_nh_bp_meal=glm(as.factor(blood_pressure)~(nh_black_white 
-  +clg_education+ RIAGENDR+ DMDYRUSR+RIDAGEYR+self_meal_prepare
+  +clg_education+ RIAGENDR+ DMDYRUSR+RIDAGEYR+self_meal_prepare+DMDMARTZ
 )^2,
      family = binomial(link = "logit"), 
   
-  data =df_nh_bp_edu_gender_immigration_self_meal_prepare
+  data =na.omit(df_nh_bp_edu_gender_immigration_self_meal_prepare)
 #|>filter(nh_black_white!=0) 
 )
 ```
@@ -642,7 +648,7 @@ df_nh_bp_edu_gender_immigration_self_meal_prepare|>
   left_join(df_modified_physical_activity,by=c("SEQN"))|>
 # |>
    dplyr::select(c("SEQN","total_activity_index","blood_pressure", "nh_black_white", "clg_education",
-  "clg_education", "RIAGENDR", "DMDYRUSR",
+  "clg_education", "RIAGENDR", "DMDYRUSR", "DMDMARTZ",
   "RIDAGEYR"))
 
 table(df_bp_activity$blood_pressure,df_bp_activity$total_activity_index)|>
@@ -717,7 +723,7 @@ mod_activity_withOtherCovariates=
   glm(
   blood_pressure~ (nh_black_white + clg_education
   +clg_education+ RIAGENDR+ DMDYRUSR
-  +RIDAGEYR+total_activity_index
+  +RIDAGEYR+total_activity_index+DMDMARTZ
   )^2,
     
   family = binomial(link = "logit"), 
@@ -750,13 +756,14 @@ train_y <- train_data[, 3]
 
 test_X <- as.matrix(test_data[, -c(1,3)])
 test_y <- test_data[, 3]
+colnames(test_X)
 ```
 
 ```{r}
 library(lightgbm)
 
 # Create LightGBM Dataset for training and testing
-train_lgb <- lgb.Dataset(data = train_X, label = train_y)
+train_lgb <- lgb.Dataset(data = train_X, label = train_y, categorical_feature = c(1:4,6))
 test_lgb <- lgb.Dataset(data = test_X, label = test_y)
 
 ```
@@ -811,6 +818,26 @@ print(importance)
 lgb.plot.importance(importance, top_n = 20, measure = "Gain")
 
 ```
+
+##Can we add a few more data?
+a) Income data
+b) Marital status
+
+
+```{r}
+
+```
+
+
+
+
+
+
+
+
+
+
+
 
 
 
