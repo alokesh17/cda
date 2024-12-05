@@ -808,7 +808,7 @@ importance <- lgb.importance(model)
 
 # View the feature importance
 print(importance)
-lgb.plot.importance(importance, top_n = 10, measure = "Gain")
+lgb.plot.importance(importance, top_n = 20, measure = "Gain")
 
 ```
 
