@@ -11,8 +11,25 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-All the data is in XPT format. So need to have in a data frame. The explanation is in the doc file just after the data file
+All the data is in XPT format. So need to have in a data frame. The explanation is in the doc file just after the data file. We are working with the data 2021-2023 (a very recen year.). There is another big dataset already available in R 2019-1014.
 
+<https://rpubs.com/KamleshJha/Nhanes>
+
+```{r}
+library(NHANES)
+library(dplyr)
+
+```
+
+```{r}
+data(NHANES)
+head(NHANES)
+colnames(NHANES)
+#tab <- NHANES %>% filter(AgeDecade == " 20-29", Gender == "female")
+```
+
+
+##lets work with the recnet one.
 ```{r}
 # install.packages("haven")
 # install.packages("writexl")
@@ -917,7 +934,9 @@ head(X)
 # Define the model
 model <- keras_model_sequential() %>%
   layer_dense(units = 64, activation = "relu", input_shape = ncol(X)) %>%  # First hidden layer
+  layer_dropout(rate = 0.2) |>
   layer_dense(units = 32, activation = "relu") %>%                        # Second hidden layer
+    layer_dropout(rate = 0.2) |>
   layer_dense(units = 1, activation = "sigmoid")                          # Output layer (binary classification)
 
 # Compile the model
