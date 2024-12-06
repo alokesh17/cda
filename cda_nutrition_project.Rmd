@@ -830,14 +830,97 @@ b) Marital status
 
 
 
+##Some neural net?
+```{r}
+# install.packages("keras3")
+# keras3::install_keras(backend = "tensorflow")
+```
 
 
 
 
+```{r}
+library(keras3)
+
+```
+
+```{r}
+# One-hot encode categorical variables (e.g., nh_black_white, clg_education)
+df_bp_activity_modified <- df_bp_activity_modified %>%
+  mutate_at(vars(nh_black_white, clg_education), as.factor) %>%
+  mutate_at(vars(nh_black_white, clg_education), function(x) as.numeric(factor(x)))
+
+# Normalize continuous variables (e.g., RIDAGEYR, total_activity_index, etc.)
+continuous_vars <- c("RIDAGEYR",  "DMDYRUSR")
+df_bp_activity_modified[continuous_vars] <- scale(df_bp_activity_modified[continuous_vars])
+
+```
+
+
+```{r}
+# Set the target variable
+y <- df_bp_activity_modified$blood_pressure
+
+# Set the predictor variables (excluding the target)
+X <- df_bp_activity_modified %>%
+  dplyr::select(c(nh_black_white, clg_education, RIAGENDR, DMDYRUSR, RIDAGEYR, total_activity_index, DMDMARTZ))
+
+# Convert to matrix for neural network
+# X <- as.matrix(X)
+# y <- as.factor(y)
+head(X)
+```
+
+```{r}
+X=X|>
+  mutate(RIAGENDR=as.numeric(RIAGENDR),
+         total_activity_index=as.numeric(total_activity_index),
+         DMDMARTZ=as.numeric(DMDMARTZ))
+
+X=as.matrix(X)
+head(X)
+```
+
+
+```{r}
+# Define the model
+model <- keras_model_sequential() %>%
+  layer_dense(units = 64, activation = "relu", input_shape = ncol(X)) %>%  # First hidden layer
+  layer_dense(units = 32, activation = "relu") %>%                        # Second hidden layer
+  layer_dense(units = 1, activation = "sigmoid")                          # Output layer (binary classification)
+
+# Compile the model
+model %>% compile(
+  loss = "binary_crossentropy",      # For binary classification
+  optimizer = "adam",                # Adam optimizer
+  metrics = c("accuracy")            # Track accuracy during training
+)
+
+```
 
 
 
+```{r}
+history <- model %>% fit(
+  X, y,
+  epochs = 50,           # Number of training epochs
+  batch_size = 20,       # Batch size
+  validation_split = 0.2, # 20% of data used for validation
+  verbose = 1            # Display progress during training
+)
 
+```
 
+```{r}
+# Predict probabilities
+predicted_probs <- model %>% predict(X)
 
+# Convert probabilities to binary outcomes (use a threshold of 0.5)
+predicted_classes <- ifelse(predicted_probs > 0.5, 2, 1)
+
+# Evaluate the accuracy
+accuracy <- mean(predicted_classes == y)
+print(paste("Accuracy: ", accuracy))
+
+```
 
