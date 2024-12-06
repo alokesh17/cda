@@ -836,6 +836,11 @@ lgb.plot.importance(importance, top_n = 20, measure = "Gain")
 
 ```
 
+
+
+
+
+
 ```{r}
 # Make predictions (probabilities) on the test set
 pred_probs <- predict(model, test_X)
@@ -953,7 +958,7 @@ model %>% compile(
 ```{r}
 history <- model %>% fit(
   X, y,
-  epochs = 50,           # Number of training epochs
+  epochs = 60,           # Number of training epochs
   batch_size = 20,       # Batch size
   validation_split = 0.2, # 20% of data used for validation
   verbose = 1            # Display progress during training
@@ -989,3 +994,28 @@ auc(roc_curve)
 plot(roc_curve)
 
 ```
+
+
+```{r}
+# Extract weights of the first layer
+weights <- model %>% get_weights()
+
+# Weights of the first layer (weights and biases)
+first_layer_weights <- weights[[1]]  # First layer weights matrix
+first_layer_biases <- weights[[2]]   # Biases of the first layer
+
+# Visualize the weight distribution using a histogram
+ggplot(data.frame(weights = as.vector(first_layer_weights)), aes(x = weights)) +
+  geom_histogram(binwidth = 0.05, fill = 'blue', color = 'black', alpha = 0.7) +
+  labs(title = "Weight Distribution of First Layer", x = "Weight Values", y = "Frequency") +
+  theme_minimal()
+
+```
+```{r}
+# Visualize the weight distribution using a histogram
+ggplot(data.frame(biases = as.vector(first_layer_biases)), aes(x = biases)) +
+  geom_histogram(binwidth = 0.05, fill = 'blue', color = 'black', alpha = 0.7) +
+  labs(title = "Weight Distribution of First Layer", x = "Weight Values", y = "Frequency") +
+  theme_minimal()
+```
+
