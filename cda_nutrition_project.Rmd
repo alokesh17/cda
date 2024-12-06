@@ -752,10 +752,10 @@ test_data <- df_bp_activity_modified[-train_idx, ]
 
 # Separate features and target variable
 train_X <- as.matrix(train_data[, -c(1,3)])
-train_y <- train_data[, 3]
+train_y <- as.numeric(train_data[, 3])-1
 
 test_X <- as.matrix(test_data[, -c(1,3)])
-test_y <- test_data[, 3]
+test_y <- as.numeric(test_data[, 3])-1#
 colnames(test_X)
 ```
 
@@ -818,6 +818,37 @@ print(importance)
 lgb.plot.importance(importance, top_n = 20, measure = "Gain")
 
 ```
+
+```{r}
+# Make predictions (probabilities) on the test set
+pred_probs <- predict(model, test_X)
+
+# View the predicted probabilities
+head(pred_probs)
+
+# Load pROC for AUC calculation
+library(pROC)
+
+# Convert predictions to factors
+pred_class <- max.col(pred_probs) - 1  # The class with the highest probability
+
+# AUC for each class
+roc_curve_class0 <- roc(test_y == 0, pred_probs[, 1])  # Class 0 (Setosa)
+roc_curve_class1 <- roc(test_y == 1, pred_probs[, 2])  # Class 1 (Versicolor)
+#roc_curve_class2 <- roc(test_y == 2, pred_probs[, 3])  # Class 2 (Virginica)
+
+# AUC values
+cat("AUC for Class 0 (Setosa): ", auc(roc_curve_class0), "\n")
+cat("AUC for Class 1 (Versicolor): ", auc(roc_curve_class1), "\n")
+#cat("AUC for Class 2 (Virginica): ", auc(roc_curve_class2), "\n")
+
+```
+```{r}
+plot(roc_curve_class0)
+plot(roc_curve_class1)
+```
+
+
 
 ##Can we add a few more data?
 a) Income data
@@ -924,3 +955,18 @@ print(paste("Accuracy: ", accuracy))
 
 ```
 
+
+```{r}
+library(pROC)
+actual_outcomes<-
+  
+df_bp_activity_modified$blood_pressure
+
+fitted_values<-predicted_probs
+  
+  
+roc_curve <- roc(actual_outcomes, fitted_values)
+auc(roc_curve)
+plot(roc_curve)
+
+```
