@@ -11,7 +11,7 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-All the data is in XPT format. So need to have in a data frame. The explanation is in the doc file just after the data file. We are working with the data 2021-2023 (a very recen year.). There is another big dataset already available in R 2019-1014.
+All the data is in XPT format. So need to have in a data frame. The explanation is in the doc file just after the data file. We are working with the data 2021-2023 (a very recent year.). There is another big dataset already available in R 2019-2014.
 
 <https://rpubs.com/KamleshJha/Nhanes>
 
@@ -254,10 +254,10 @@ nh_bp_edu_gender_immigration
 Can we do some regression techniques? nh_black_white has also 0.
 ```{r}
 model_reg1 <- glm(
-  blood_pressure ~ (nh_black_white + clg_education
+  blood_pressure ~ (nh_black_white 
   +clg_education+ RIAGENDR+ DMDYRUSR
   +RIDAGEYR
-  )^2
+  )
     
     , family = binomial(link = "logit"), 
   
@@ -275,7 +275,7 @@ summary(model_reg1)
 
 ```{r}
 model_reg2 <- glm(
-  blood_pressure ~ (nh_black_white + clg_education
+  blood_pressure ~ (nh_black_white 
   +clg_education+ RIAGENDR+ DMDYRUSR
   +RIDAGEYR
   )^2
@@ -346,6 +346,7 @@ model_f=logistf(blood_pressure ~ nh_black_white + clg_education
 
 summary(model_f)
 ```
+
 
 
 
@@ -476,7 +477,7 @@ gkgamma(nh_bp_immigration_table, conf.level=0.95)
 
 ##<https://wwwn.cdc.gov/Nchs/Nhanes/2021-2022/DBQ_L.htm> diet nutrition data
 
-
+#go here <https://wwwn.cdc.gov/nchs/nhanes/search/datapage.aspx?Component=Questionnaire> and search for DBQ_L
 ```{r}
 data <- read_xpt("~/downloads/DBQ_L.XPT")
 df_diet=as.data.frame(data)
@@ -529,7 +530,7 @@ df_bp_self_meal_prepare
 ```
 
 
-
+## for Q2
 ```{r}
 dat=na.omit(df_bp_self_meal_prepare)
 
@@ -549,17 +550,14 @@ summary(mod_bp_meal)
 
 ```{r}
 library(pROC)
-actual_outcomes<-
-  
-  dat$blood_pressure
+actual_outcomes<- dat$blood_pressure
 
-fitted_values<-
-  
-  mod_bp_meal$fitted.values
+fitted_values<- mod_bp_meal$fitted.values
   
   
 roc_curve <- roc(actual_outcomes, fitted_values)
-auc(roc_curve)
+
+#auc(roc_curve)
 plot(roc_curve)
 
 ```
@@ -580,12 +578,12 @@ colnames(df_nh_bp_edu_gender_immigration_self_meal_prepare)
 
 
 ```{r}
-mod_nh_bp_meal=glm(as.factor(blood_pressure)~(nh_black_white 
-  +clg_education+ RIAGENDR+ DMDYRUSR+RIDAGEYR+self_meal_prepare+DMDMARTZ
-)^2,
+mod_nh_bp_meal_1int<- 
+  glm( as.factor(blood_pressure)~(nh_black_white 
+  +clg_education + RIAGENDR+ DMDYRUSR+ RIDAGEYR + self_meal_prepare ),
      family = binomial(link = "logit"), 
   
-  data =na.omit(df_nh_bp_edu_gender_immigration_self_meal_prepare)
+  data = na.omit(df_nh_bp_edu_gender_immigration_self_meal_prepare)
 #|>filter(nh_black_white!=0) 
 )
 ```
@@ -593,13 +591,23 @@ mod_nh_bp_meal=glm(as.factor(blood_pressure)~(nh_black_white
 
 
 ```{r}
-summary(mod_nh_bp_meal)
+summary(mod_nh_bp_meal_1int)
 ```
-
 
 ```{r}
+mod_nh_bp_meal_2int<- 
+  glm( as.factor(blood_pressure)~(nh_black_white 
+  +clg_education + RIAGENDR+ DMDYRUSR+ RIDAGEYR + self_meal_prepare )^2,
+     family = binomial(link = "logit"), 
+  
+  data = na.omit(df_nh_bp_edu_gender_immigration_self_meal_prepare)
+#|>filter(nh_black_white!=0) 
+)
 
+summary(mod_nh_bp_meal_2int)
 ```
+
+
 
 
 Q2. Blood pressure 0/1 (BPQ020). 
@@ -631,7 +639,7 @@ Find the data in questioaire
 
 
 ##problem 3:
-#https://wwwn.cdc.gov/Nchs/Nhanes/2021-2022/PAQ_L.htm for physical activity
+#https://wwwn.cdc.gov/nchs/nhanes/search/datapage.aspx?Component=Questionnaire for physical activity , search PAQ_L.XPT
 #PAD800 - Minutes moderate LTPA how much to do exercisein leisure time
 ##check if black adults had enough physical activity and blood pressure relation
 #
@@ -727,34 +735,48 @@ fitted_values<-
   
   
 roc_curve <- roc(actual_outcomes, fitted_values)
-auc(roc_curve)
+#auc(roc_curve)
 plot(roc_curve)
 
 ```
 
-
+## within the black population
 ```{r}
-
-
-mod_activity_withOtherCovariates=
+mod_activity_withOtherCovariates_1int=
   glm(
-  blood_pressure~ (nh_black_white + clg_education
+  as.factor(blood_pressure) ~ (nh_black_white 
   +clg_education+ RIAGENDR+ DMDYRUSR
-  +RIDAGEYR+total_activity_index+DMDMARTZ
+  +RIDAGEYR+total_activity_index
+  ),
+    
+  family = binomial(link = "logit"), 
+  
+  data =df_bp_activity_modified #|>filter(nh_black_white==1)
+  )
+
+mod_activity_withOtherCovariates_2int=
+  glm(
+  as.factor(blood_pressure) ~ (
+    nh_black_white 
+  +clg_education+ RIAGENDR+ DMDYRUSR
+  +RIDAGEYR+total_activity_index
   )^2,
     
   family = binomial(link = "logit"), 
   
-  data =df_bp_activity_modified
+  data =df_bp_activity_modified #|>filter(nh_black_white==1)
   )
 ```
 
 
+```{r}
+summary(mod_activity_withOtherCovariates_1int)
+```
 
 
 
 ```{r}
-summary(mod_activity_withOtherCovariates)
+summary(mod_activity_withOtherCovariates_2int)
 ```
 
 
@@ -1011,6 +1033,10 @@ ggplot(data.frame(weights = as.vector(first_layer_weights)), aes(x = weights)) +
   theme_minimal()
 
 ```
+
+
+
+
 ```{r}
 # Visualize the weight distribution using a histogram
 ggplot(data.frame(biases = as.vector(first_layer_biases)), aes(x = biases)) +
